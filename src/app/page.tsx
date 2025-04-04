@@ -1,10 +1,15 @@
 "use client";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
 export default function Home() {
   const mountRef = useRef<HTMLDivElement>(null);
+
+  const [orbitSpeedFactor, setOrbitSpeedFactor] = useState(0.8);
+  const [waveSpeed, setWaveSpeed] = useState(5);
+  const [emitRate, setEmitRate] = useState(0.25);
+  const [waveAmplitude, setWaveAmplitude] = useState(0.3);
 
   useEffect(() => {
     if (!mountRef.current) return;
@@ -25,30 +30,18 @@ export default function Home() {
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
 
-    const starsGeometry = new THREE.BufferGeometry();
-    const starCount = 1000;
-    const starVertices = [];
-    for (let i = 0; i < starCount; i++) {
-      const x = (Math.random() - 0.5) * 200;
-      const y = (Math.random() - 0.5) * 200;
-      const z = (Math.random() - 0.5) * 200;
-      starVertices.push(x, y, z);
+    // Add star spheres
+    const starMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
+    const starGeometry = new THREE.SphereGeometry(0.1, 8, 8);
+    for (let i = 0; i < 500; i++) {
+      const star = new THREE.Mesh(starGeometry, starMaterial);
+      star.position.set(
+        (Math.random() - 0.5) * 200,
+        (Math.random() - 0.5) * 200,
+        (Math.random() - 0.5) * 200
+      );
+      scene.add(star);
     }
-    starsGeometry.setAttribute(
-      "position",
-      new THREE.Float32BufferAttribute(starVertices, 3)
-    );
-    const starsMaterial = new THREE.PointsMaterial({
-      color: 0xffffff,
-      size: 0.5,
-    });
-    const starField = new THREE.Points(starsGeometry, starsMaterial);
-    scene.add(starField);
-
-    scene.add(new THREE.AmbientLight(0xffffff, 0.3));
-    const pointLight = new THREE.PointLight(0xffffff, 1);
-    pointLight.position.set(10, 10, 10);
-    scene.add(pointLight);
 
     const blackHoleGeo = new THREE.SphereGeometry(0.4, 32, 32);
     const blackHoleCoreMat = new THREE.MeshBasicMaterial({ color: 0x000000 });
@@ -104,7 +97,6 @@ export default function Home() {
       opacity: 0.2,
       side: THREE.DoubleSide,
     });
-
     const wireframeMaterial = new THREE.MeshBasicMaterial({
       color: 0x00ffff,
       wireframe: true,
@@ -120,12 +112,9 @@ export default function Home() {
 
     const clock = new THREE.Clock();
     let lastEmit = 0;
-    const emitInterval = 0.25;
-    const maxWaves = 100;
-
     let merging = false;
     let mergeStartTime = 0;
-    const mergeDuration = 2; // seconds
+    const mergeDuration = 2;
     let waveEmitted = false;
 
     const animate = () => {
@@ -133,20 +122,18 @@ export default function Home() {
       const t = clock.getElapsedTime();
 
       let orbitRadius = 2;
-      const orbitSpeed = 0.8;
-      let angle = t * orbitSpeed;
+      let angle = t * orbitSpeedFactor;
 
       if (merging) {
         const progress = Math.min((t - mergeStartTime) / mergeDuration, 1);
         orbitRadius = 2 * (1 - progress);
-        angle = t * orbitSpeed * (1 + progress * 4);
+        angle = t * orbitSpeedFactor * (1 + progress * 4);
 
         if (progress >= 1) {
           blackHole1.position.set(0, 0, 0);
           blackHole2.position.set(0, 0, 0);
-
           if (!waveEmitted) {
-            spiralOrigins.length = 0; // clear previous waves
+            spiralOrigins.length = 0;
             spiralOrigins.push({
               position: new THREE.Vector3(0, 0, 0),
               birth: t,
@@ -182,10 +169,10 @@ export default function Home() {
         -Math.sin(angle),
         0,
         Math.cos(angle)
-      ).multiplyScalar(orbitRadius * orbitSpeed);
+      ).multiplyScalar(orbitRadius * orbitSpeedFactor);
       const vel2 = vel1.clone().multiplyScalar(-1);
 
-      if (!merging && t - lastEmit > emitInterval) {
+      if (!merging && t - lastEmit > emitRate) {
         const offsetDistance = 0.5;
         const spiralOrigin1 = blackHole1.position
           .clone()
@@ -198,9 +185,6 @@ export default function Home() {
         lastEmit = t;
       }
 
-      if (spiralOrigins.length > maxWaves)
-        spiralOrigins.splice(0, spiralOrigins.length - maxWaves);
-
       const positions = gridWire.geometry.attributes
         .position as THREE.BufferAttribute;
       const base = basePositions;
@@ -210,26 +194,21 @@ export default function Home() {
         const x = base[i];
         const z = base[i + 2];
         let y = 0;
-
         for (const wave of spiralOrigins) {
           const dx = x - wave.position.x;
           const dz = z - wave.position.z;
           const dist = Math.sqrt(dx * dx + dz * dz);
           const age = t - wave.birth;
-          const waveFront = age * 5;
+          const waveFront = age * waveSpeed;
           const falloff = Math.exp(-Math.pow(dist - waveFront, 2) * 0.5);
-          y += 0.3 * falloff * Math.sin(dist - waveFront);
+          y += waveAmplitude * falloff * Math.sin(dist - waveFront);
         }
-
         array[i + 1] = y;
       }
 
       positions.needsUpdate = true;
-
-      const scale1 = 2 + Math.sin(t * pulseSpeed1) * 0.2;
-      const scale2 = 2 + Math.sin(t * pulseSpeed2) * 0.2;
-      glow1.scale.set(scale1, scale1, scale1);
-      glow2.scale.set(scale2, scale2, scale2);
+      glow1.scale.setScalar(2 + Math.sin(t * pulseSpeed1) * 0.2);
+      glow2.scale.setScalar(2 + Math.sin(t * pulseSpeed2) * 0.2);
 
       controls.update();
       renderer.render(scene, camera);
@@ -245,7 +224,6 @@ export default function Home() {
     };
 
     window.addEventListener("click", triggerMerger);
-
     const handleResize = () => {
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
@@ -255,12 +233,74 @@ export default function Home() {
     window.addEventListener("resize", handleResize);
     return () => {
       window.removeEventListener("resize", handleResize);
-      window.removeEventListener("click", triggerMerger);
       if (mountRef.current) {
         mountRef.current.removeChild(renderer.domElement);
       }
     };
-  }, []);
+  }, [orbitSpeedFactor, waveSpeed, emitRate, waveAmplitude]);
 
-  return <div ref={mountRef} style={{ width: "100vw", height: "100vh" }} />;
+  return (
+    <>
+      <div ref={mountRef} style={{ width: "100vw", height: "100vh" }} />
+      <div
+        style={{
+          position: "absolute",
+          top: 20,
+          left: 20,
+          background: "rgba(0,0,0,0.5)",
+          padding: 10,
+          borderRadius: 8,
+          color: "white",
+        }}
+      >
+        <label>
+          Orbit Speed: {orbitSpeedFactor.toFixed(2)}
+          <input
+            type="range"
+            min="0.1"
+            max="2"
+            step="0.01"
+            value={orbitSpeedFactor}
+            onChange={(e) => setOrbitSpeedFactor(parseFloat(e.target.value))}
+          />
+        </label>
+        <br />
+        <label>
+          Wave Speed: {waveSpeed.toFixed(1)}
+          <input
+            type="range"
+            min="1"
+            max="10"
+            step="0.1"
+            value={waveSpeed}
+            onChange={(e) => setWaveSpeed(parseFloat(e.target.value))}
+          />
+        </label>
+        <br />
+        <label>
+          Emit Interval: {emitRate.toFixed(2)}s
+          <input
+            type="range"
+            min="0.05"
+            max="1"
+            step="0.01"
+            value={emitRate}
+            onChange={(e) => setEmitRate(parseFloat(e.target.value))}
+          />
+        </label>
+        <br />
+        <label>
+          Wave Amplitude: {waveAmplitude.toFixed(2)}
+          <input
+            type="range"
+            min="0.1"
+            max="1"
+            step="0.01"
+            value={waveAmplitude}
+            onChange={(e) => setWaveAmplitude(parseFloat(e.target.value))}
+          />
+        </label>
+      </div>
+    </>
+  );
 }
