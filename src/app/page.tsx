@@ -10,8 +10,6 @@ export default function Home() {
     if (!mountRef.current) return;
 
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x000000);
-
     const camera = new THREE.PerspectiveCamera(
       60,
       window.innerWidth / window.innerHeight,
@@ -26,6 +24,27 @@ export default function Home() {
 
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
+
+    // Starry background using simple points
+    const starsGeometry = new THREE.BufferGeometry();
+    const starCount = 1000;
+    const starVertices = [];
+    for (let i = 0; i < starCount; i++) {
+      const x = (Math.random() - 0.5) * 200;
+      const y = (Math.random() - 0.5) * 200;
+      const z = (Math.random() - 0.5) * 200;
+      starVertices.push(x, y, z);
+    }
+    starsGeometry.setAttribute(
+      "position",
+      new THREE.Float32BufferAttribute(starVertices, 3)
+    );
+    const starsMaterial = new THREE.PointsMaterial({
+      color: 0xffffff,
+      size: 0.5,
+    });
+    const starField = new THREE.Points(starsGeometry, starsMaterial);
+    scene.add(starField);
 
     scene.add(new THREE.AmbientLight(0xffffff, 0.3));
     const pointLight = new THREE.PointLight(0xffffff, 1);
@@ -73,13 +92,14 @@ export default function Home() {
     const clock = new THREE.Clock();
     let lastEmit = 0;
     const emitInterval = 0.25;
+    const maxWaves = 100;
 
     const animate = () => {
       requestAnimationFrame(animate);
       const t = clock.getElapsedTime();
 
-      const orbitRadius = 5;
-      const orbitSpeed = 1;
+      const orbitRadius = 2;
+      const orbitSpeed = 0.8;
       const angle = t * orbitSpeed;
 
       const pos1 = new THREE.Vector3(
@@ -116,6 +136,10 @@ export default function Home() {
         lastEmit = t;
       }
 
+      // Limit the number of active spiral waves
+      if (spiralOrigins.length > maxWaves)
+        spiralOrigins.splice(0, spiralOrigins.length - maxWaves);
+
       // Grid distortion caused by spirals
       const positions = gridWire.geometry.attributes
         .position as THREE.BufferAttribute;
@@ -141,7 +165,6 @@ export default function Home() {
       }
 
       positions.needsUpdate = true;
-
       controls.update();
       renderer.render(scene, camera);
     };
