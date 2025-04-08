@@ -1,36 +1,82 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🌌 Gravitational Wave Simulation
 
-## Getting Started
+This project is an interactive simulation of two black holes orbiting each other and merging, generating visualized gravitational waves. It is designed to illustrate the concept of spacetime distortions caused by massive accelerating bodies, as predicted by Einstein's General Theory of Relativity.
 
-First, run the development server:
+Built using **React** and **Three.js**, this simulation is rendered directly in the browser and includes user controls to manipulate simulation parameters in real-time.
+
+---
+
+## 🚀 Features
+
+- 🌀 Black holes orbiting in real time
+- 🌊 Gravitational waves emitted as ripples on a 3D grid
+- 💥 Merger triggered by a button, generating a final mega wave
+- ✨ Background starfield with glowing sphere stars
+- 🎛️ Adjustable sliders for orbit speed, wave amplitude, emission rate, and more
+- 📱 Responsive, GPU-accelerated rendering via WebGL
+
+---
+
+## 🧰 Technologies Used
+
+- [React](https://reactjs.org/) — UI framework
+- [Three.js](https://threejs.org/) — 3D rendering
+- [TypeScript](https://www.typescriptlang.org/) — static typing
+- [Vite](https://vitejs.dev/) or [Next.js](https://nextjs.org/) — project scaffolding (depending on your setup)
+
+---
+
+## 🧠 How It Works
+
+- Two spheres represent black holes, orbiting each other with increasing speed.
+- Gravitational waves are visualized as vertical displacement on a grid plane.
+- Wave data is stored in an array and updated over time to simulate propagation.
+- When the user presses the **“Initiate Merger”** button, the black holes spiral inward and merge at the center.
+- A final burst of ripples is emitted to mimic the intense gravitational wave event.
+
+---
+
+## 🖱️ Controls
+
+You can adjust these parameters live from the on-screen control panel:
+
+- **Orbit Speed** — Controls how fast the black holes orbit
+- **Wave Speed** — Speed at which ripples move outward
+- **Wave Amplitude** — How tall the ripples are
+- **Emit Interval** — How often new waves are emitted
+- **Initiate Merger** — Button to trigger the final black hole collision
+
+---
+
+## 📸 Demo
+
+![Demo Screenshot](demo.png)  
+*(Optional: Add a screen recording or GIF of your simulation in action)*
+
+---
+
+## 🧪 Getting Started
+
+1. Clone the repo:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/yourusername/gravitational-wave-simulation.git
+cd gravitational-wave-simulation
 ```
+2.Install dependencies:
+```
+npm install
+```
+3.Start the development server:
+```
+npm run dev
+```
+## 📚 Educational Value
+This simulation is useful for:
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- Teaching the concept of gravitational waves
+- Demonstrating binary black hole mergers
+- Visualizing spacetime curvature in a classroom or presentation setting
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 📄 License
+MIT License. Feel free to use, remix, and share.
