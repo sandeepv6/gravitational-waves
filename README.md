@@ -22,7 +22,7 @@ Built using **React** and **Three.js**, this simulation is rendered directly in 
 - [React](https://reactjs.org/) — UI framework
 - [Three.js](https://threejs.org/) — 3D rendering
 - [TypeScript](https://www.typescriptlang.org/) — static typing
-- [Vite](https://vitejs.dev/) or [Next.js](https://nextjs.org/) — project scaffolding (depending on your setup)
+- [Next.js](https://nextjs.org/) — project scaffolding
 
 ---
 
@@ -51,7 +51,7 @@ You can adjust these parameters live from the on-screen control panel:
 ## 📸 Demo
 
 ![Demo Screenshot](demo.png)  
-*(Optional: Add a screen recording or GIF of your simulation in action)*
+*COMING SOON*
 
 ---
 
