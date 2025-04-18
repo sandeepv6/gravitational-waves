@@ -51,7 +51,7 @@ You can adjust these parameters live from the on-screen control panel:
 ## 📸 Demo
 
 ![Demo Screenshot](demo.png)  
-*COMING SOON*
+*WILL BE COMING SOON*
 
 ---
 
